@@ -1,5 +1,4 @@
 ﻿using CsvHelper;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,16 +7,15 @@ using System.Linq;
 
 namespace BartlettGenesisLogFileParser
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-
             if (!File.Exists(args[0]))
             {
                 throw new Exception("Source file does not exist: " + args[0]);
             }
-            
+
             if (args[1] == null || args[1].Length < 1)
             {
                 throw new Exception("Please provide a destination file.");
@@ -26,7 +24,6 @@ namespace BartlettGenesisLogFileParser
             using (var reader = new StreamReader(args[0]))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
-                
                 csv.Configuration.MissingFieldFound = null;
                 var records = csv.GetRecords<BartlettLogRecordRaw>();
                 logRecords = records.ToList();
@@ -36,11 +33,11 @@ namespace BartlettGenesisLogFileParser
                 var program = GetBartlettProgram(logRecords);
                 var segments = GetSegmentsFromRawLogRecords(logRecords, info[0].DateTime);
 
-                var reportLines = new List<BartlettReport>();
-                
+                var reportLines = new List<BartlettReportLine>();
+
                 foreach (var segment in segments)
-                {                    
-                    foreach(var tempRecord in segment.TempRecords)
+                {
+                    foreach (var tempRecord in segment.TempRecords)
                     {
                         var report = GetReportMeta(info, program);
                         report = GetSegmentMeta(segment, report);
@@ -54,9 +51,8 @@ namespace BartlettGenesisLogFileParser
                 using (var writer = new StreamWriter(args[1]))
                 using (var report = new CsvWriter(writer, CultureInfo.InvariantCulture))
                 {
-                    //report.WriteHeader<Foo>();
                     report.Configuration.ShouldQuote = (field, context) => true;
-                    report.WriteHeader<BartlettReport>();
+                    report.WriteHeader<BartlettReportLine>();
                     report.NextRecord();
                     foreach (var line in reportLines)
                     {
@@ -64,12 +60,12 @@ namespace BartlettGenesisLogFileParser
                         report.NextRecord();
                     }
                 }
-
             }
         }
-        private static BartlettReport GetReportMeta(List<BartlettInfo> info, BartlettProgram program)
+
+        private static BartlettReportLine GetReportMeta(List<BartlettInfo> info, BartlettProgram program)
         {
-            var reportRow = new BartlettReport();
+            var reportRow = new BartlettReportLine();
 
             reportRow.FiringName = program.Name;
             reportRow.FiringDate = info[0].DateTime.ToString();
@@ -80,7 +76,7 @@ namespace BartlettGenesisLogFileParser
             return reportRow;
         }
 
-        private static BartlettReport GetSegmentMeta(BartlettSegment segment, BartlettReport reportRow)
+        private static BartlettReportLine GetSegmentMeta(BartlettSegment segment, BartlettReportLine reportRow)
         {
             reportRow.SegmentNumber = segment.Number;
             reportRow.SegmentStart = segment.StartTime.ToString();
@@ -92,10 +88,9 @@ namespace BartlettGenesisLogFileParser
             reportRow.SegmentClimbRate = segment.ClimbRate.ToString();
             return reportRow;
         }
-        
+
         private static List<BartlettInfo> GetStartAndStopInfo(List<BartlettLogRecordRaw> logRecords)
         {
-
             List<BartlettLogRecordRaw> records = new List<BartlettLogRecordRaw>();
             BartlettInfo start = new BartlettInfo();
             BartlettInfo end = new BartlettInfo();
@@ -104,12 +99,12 @@ namespace BartlettGenesisLogFileParser
             {
                 if (record.Event.Equals("info"))
                 {
-                    if (record.DateTime.Length > 0) {
-
+                    if (record.DateTime.Length > 0)
+                    {
                         current = start.DateTime == DateTime.MinValue ? start : end;
-                        current.DateTime = DateTime.Parse(record.DateTime.Replace("Z",""));
+                        current.DateTime = DateTime.Parse(record.DateTime.Replace("Z", ""));
                     }
-                    
+
                     if (record.EventName.Equals("cost"))
                     {
                         current.Cost = Decimal.Parse(record.EventValue);
@@ -122,12 +117,9 @@ namespace BartlettGenesisLogFileParser
                     {
                         current.FirmwareVersion = record.EventValue;
                     }
-
-
                 }
             }
             return new List<BartlettInfo> { start, end };
-
         }
 
         private static BartlettProgram GetBartlettProgram(List<BartlettLogRecordRaw> logRecords)
@@ -149,7 +141,6 @@ namespace BartlettGenesisLogFileParser
                     {
                         program.Segments = Int32.Parse(record.EventValue);
                     }
-
                 }
             }
             return program;
@@ -160,16 +151,17 @@ namespace BartlettGenesisLogFileParser
             var segments = new List<BartlettSegment>();
 
             BartlettSegment segment = null;
-            foreach(var record in logRecords)
+            foreach (var record in logRecords)
             {
-                if (record.Event.Equals("start ramp")){
+                if (record.Event.Equals("start ramp"))
+                {
                     if (segment == null) segment = new BartlettSegment();
-                    
+
                     if (record.DateTime != null && record.DateTime.Length > 0)
                     {
-                        segment.StartTime = DateTime.Parse(record.DateTime); 
+                        segment.StartTime = DateTime.Parse(record.DateTime);
                     }
-                    
+
                     if (record.EventName.Equals("segment"))
                     {
                         segment.Number = Int32.Parse(record.EventValue);
@@ -182,22 +174,18 @@ namespace BartlettGenesisLogFileParser
                     {
                         segment.TargetTemp = Int32.Parse(record.EventValue);
                     }
-
-
                 }
 
-                if (record.TimeOffset != null && !record.TimeOffset.Equals("")) {
-                    
+                if (record.TimeOffset != null && !record.TimeOffset.Equals(""))
+                {
                     segment.TempRecords.Add(new BartlettTempRecord()
                     {
                         Time = startTime.AddSeconds(Int32.Parse(record.TimeOffset) * 30),
                         Setpoint = Int32.Parse(record.SetPoint),
                         TempAvg = Int32.Parse(record.Temp2),
                         OutAvg = Int32.Parse(record.Out2)
-                    }) ;
+                    });
                 }
-
-               
 
                 if (record.Event.Equals("start hold"))
                 {
@@ -212,16 +200,17 @@ namespace BartlettGenesisLogFileParser
                     if (record.EventName.Equals("temp"))
                     {
                         segment.EndTemp = Int32.Parse(record.EventValue);
-                        if (segment.TempRecords != null && segment.TempRecords[0] != null) {
+                        if (segment.TempRecords != null && segment.TempRecords[0] != null)
+                        {
                             segment.StartTemp = segment.TempRecords[0].TempAvg;
                         }
-                        if (segment.HoldTime.Equals("0h0m")){
+                        if (segment.HoldTime.Equals("0h0m"))
+                        {
                             segments.Add(segment);
                             segment = null;
                         }
                         continue;
                     }
-                    
                 }
                 if (record.Event.Equals("manual stop firing") || record.Event.Equals("firing complete"))
                 {
@@ -233,11 +222,9 @@ namespace BartlettGenesisLogFileParser
                     segment = null;
                     continue;
                 }
-
             }
 
             return segments;
-
         }
     }
 }

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BartlettGenesisLogFileParser
+﻿namespace BartlettGenesisLogFileParser
 {
-    class BartlettReport
+    internal class BartlettReportLine
     {
-
         public string FiringName { get; set; }
         public string FiringDate { get; set; }
         public string FiringCost { get; set; }

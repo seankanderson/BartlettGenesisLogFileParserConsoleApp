@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace BartlettGenesisLogFileParser
 {
-    class BartlettSegment
+    internal class BartlettSegment
     {
         public List<BartlettTempRecord> TempRecords { get; set; } = new List<BartlettTempRecord>();
         public DateTime StartTime { get; set; }
@@ -15,6 +14,5 @@ namespace BartlettGenesisLogFileParser
         public int TargetTemp { get; set; }
         public int EndTemp { get; set; }
         public string HoldTime { get; set; }
-
     }
 }

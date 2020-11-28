@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BartlettGenesisLogFileParser
+﻿namespace BartlettGenesisLogFileParser
 {
-    class BartlettProgram
+    internal class BartlettProgram
     {
         public string Name { get; set; }
         public int Segments { get; set; }
