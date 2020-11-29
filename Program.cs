@@ -218,6 +218,18 @@ namespace BartlettGenesisLogFileParser
                     {
                         segment.EndTime = DateTime.Parse(record.DateTime);
                     }
+
+                    if (segment.TempRecords != null && segment.TempRecords[0] != null)
+                    {
+                        segment.StartTemp = segment.TempRecords[0].TempAvg;
+                        segment.EndTemp = segment.TempRecords.TakeLast(1).ToList()[0].TempAvg; //  [(segment.TempRecords.Count - 1)].TempAvg;
+                    }
+
+                    if (segment.HoldTime == null || segment.HoldTime.Length < 1)
+                    {
+                        segment.HoldTime = "0h0m";
+                    }
+
                     segments.Add(segment);
                     segment = null;
                     continue;
