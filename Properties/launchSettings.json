@@ -2,7 +2,7 @@
   "profiles": {
     "BartlettGenesisLogFileParser": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\SeanAnderson\\Downloads\\Cone-04-Med-Slow@2020-11-25T21_00_36Z.csv\" \"C:\\Users\\SeanAnderson\\Downloads\\report.csv\""
+      "commandLineArgs": "\"C:\\Users\\SeanAnderson\\Downloads\\Cone-04-Med-Slow@2020-11-28T21_33_44Z.csv\" \"C:\\Users\\SeanAnderson\\Downloads\\report3.csv\""
     }
   }
 }

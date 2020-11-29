@@ -146,15 +146,30 @@ namespace BartlettGenesisLogFileParser
             return program;
         }
 
+        /// <summary>
+        /// ent
+        /// </summary>
+        /// <param name="logRecords"></param>
+        /// <param name="startTime"></param>
+        /// <returns></returns>
         private static List<BartlettSegment> GetSegmentsFromRawLogRecords(List<BartlettLogRecordRaw> logRecords, DateTime startTime)
         {
             var segments = new List<BartlettSegment>();
-
+            var lastSegment = 0;
             BartlettSegment segment = null;
             foreach (var record in logRecords)
             {
+                if (record.Event.Equals("block continue")) continue;
+
                 if (record.Event.Equals("start ramp"))
                 {
+                    if (segment != null && segment.TempRecords.Count > 0)
+                    {
+                        segment.EndTime = DateTime.Parse(record.DateTime);
+                        segments.Add(segment);
+                        segment = null;
+                    }
+
                     if (segment == null) segment = new BartlettSegment();
 
                     if (record.DateTime != null && record.DateTime.Length > 0)
