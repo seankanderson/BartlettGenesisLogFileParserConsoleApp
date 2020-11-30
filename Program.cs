@@ -165,7 +165,7 @@ namespace BartlettGenesisLogFileParser
                 {
                     if (segment != null && segment.TempRecords.Count > 0)
                     {
-                        segment.EndTime = DateTime.Parse(record.DateTime);
+                        segment.EndTime = DateTime.Parse(record.DateTime.Replace("Z", ""));
                         segments.Add(segment);
                         segment = null;
                     }
@@ -174,7 +174,7 @@ namespace BartlettGenesisLogFileParser
 
                     if (record.DateTime != null && record.DateTime.Length > 0)
                     {
-                        segment.StartTime = DateTime.Parse(record.DateTime);
+                        segment.StartTime = DateTime.Parse(record.DateTime.Replace("Z", ""));
                     }
 
                     if (record.EventName.Equals("segment"))
@@ -210,7 +210,7 @@ namespace BartlettGenesisLogFileParser
                     }
                     if (record.DateTime != null && record.DateTime.Length > 0)
                     {
-                        segment.EndTime = DateTime.Parse(record.DateTime);
+                        segment.EndTime = DateTime.Parse(record.DateTime.Replace("Z", ""));
                     }
                     if (record.EventName.Equals("temp"))
                     {
@@ -231,13 +231,13 @@ namespace BartlettGenesisLogFileParser
                 {
                     if (record.DateTime != null && record.DateTime.Length > 0)
                     {
-                        segment.EndTime = DateTime.Parse(record.DateTime);
+                        segment.EndTime = DateTime.Parse(record.DateTime.Replace("Z", ""));
                     }
 
                     if (segment.TempRecords != null && segment.TempRecords[0] != null)
                     {
                         segment.StartTemp = segment.TempRecords[0].TempAvg;
-                        segment.EndTemp = segment.TempRecords.TakeLast(1).ToList()[0].TempAvg; //  [(segment.TempRecords.Count - 1)].TempAvg;
+                        segment.EndTemp = segment.TempRecords.TakeLast(1).ToList()[0].TempAvg;
                     }
 
                     if (segment.HoldTime == null || segment.HoldTime.Length < 1)
